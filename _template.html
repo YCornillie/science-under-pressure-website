@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Science under Pressure</title>
+<meta name="description" content="Wissenschaftsverein für Unterwasserforschung: Unterwasserarchäologie, marine Biologie & Ökologie, Ozeanographie & Gewässerkunde." />
+<style>
+  :root{
+    --bg:#05070e;
+    --bg2:#0a0f1c;
+    --surface:#0d1526;
+    --surface2:#111c31;
+    --ink:#e9f2f7;
+    --muted:#8ea6b8;
+    --faint:#5f748a;
+    --cyan:#45e0d8;
+    --cyan-bright:#8bf6ee;
+    --blue:#4d7cfe;
+    --line:rgba(120,180,200,.12);
+    --line-strong:rgba(120,180,200,.22);
+    --maxw:1180px;
+    --r:16px;
+    font-synthesis:none;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',-apple-system,'Segoe UI',system-ui,sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none}
+  h1,h2,h3{line-height:1.05;letter-spacing:-.02em;font-weight:800;margin:0}
+  p{margin:0}
+  ::selection{background:var(--cyan);color:#04121a}
+
+  /* ---------- WebGL canvas ---------- */
+  #bathy{
+    position:fixed;inset:0;width:100vw;height:100vh;
+    z-index:0;display:block;
+  }
+  .hero-fade{ /* subtle darkening over canvas for text legibility */
+    position:fixed;inset:0;z-index:1;pointer-events:none;
+    background:
+      radial-gradient(120% 90% at 50% 8%, rgba(5,7,14,0) 30%, rgba(5,7,14,.55) 72%, rgba(5,7,14,.92) 100%),
+      linear-gradient(180deg, rgba(5,7,14,.35) 0%, rgba(5,7,14,0) 22%);
+  }
+
+  /* ---------- Nav ---------- */
+  header.nav{
+    position:fixed;top:0;left:0;right:0;z-index:40;
+    display:flex;align-items:center;justify-content:space-between;
+    gap:24px;padding:16px clamp(18px,4vw,44px);
+    background:linear-gradient(180deg, rgba(5,7,14,.72), rgba(5,7,14,0));
+    backdrop-filter:blur(4px);
+  }
+  header.nav.scrolled{
+    background:rgba(6,9,17,.82);
+    backdrop-filter:blur(14px) saturate(1.2);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:-.01em;font-size:16px}
+  .brand .mark{width:26px;height:26px;flex:0 0 auto}
+  .brand img.mark{border-radius:50%;object-fit:cover}
+  .brand small{display:block;font-weight:500;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin-top:1px}
+  nav.links{display:flex;gap:6px;align-items:center}
+  nav.links a{
+    font-size:13.5px;color:var(--muted);padding:8px 12px;border-radius:9px;
+    font-weight:500;transition:color .2s,background .2s;
+  }
+  nav.links a:hover{color:var(--ink);background:rgba(120,180,200,.07)}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    font-weight:600;font-size:13.5px;padding:9px 16px;border-radius:10px;
+    border:1px solid transparent;cursor:pointer;transition:.2s;white-space:nowrap;
+  }
+  .btn-primary{background:var(--cyan);color:#04121a;box-shadow:0 6px 24px -8px rgba(69,224,216,.6)}
+  .btn-primary:hover{background:var(--cyan-bright);transform:translateY(-1px)}
+  .btn-ghost{border-color:var(--line-strong);color:var(--ink)}
+  .btn-ghost:hover{border-color:var(--cyan);background:rgba(69,224,216,.06)}
+  .nav-cta{display:flex;gap:10px;align-items:center}
+  .burger{display:none;background:none;border:0;color:var(--ink);cursor:pointer;padding:8px}
+
+  /* ---------- Layout ---------- */
+  main{position:relative;z-index:10}
+  section{position:relative}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 clamp(18px,4vw,44px)}
+  .band{background:rgba(5,7,14,.82);border-top:1px solid var(--line)}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:9px;
+    font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--cyan);margin-bottom:20px;
+  }
+  .eyebrow::before{content:"";width:22px;height:1px;background:var(--cyan);opacity:.7}
+  .section-pad{padding:clamp(72px,11vw,140px) 0}
+  .lead{color:var(--muted);font-size:clamp(16px,1.6vw,19px);max-width:60ch}
+
+  /* ---------- Hero ---------- */
+  .hero{position:relative;z-index:10;min-height:100vh;display:flex;align-items:center}
+  .hero .wrap{padding-top:120px;padding-bottom:64px}
+  .hero h1{
+    font-size:clamp(44px,9vw,116px);line-height:.92;letter-spacing:-.035em;
+    margin:0 0 26px;font-weight:800;
+  }
+  .hero h1 .u{
+    background:linear-gradient(180deg,#fff, #b9f6ef 55%, var(--cyan));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero-sub{font-size:clamp(17px,2vw,22px);color:#cdddea;max-width:56ch;font-weight:400}
+  .hero-sub b{color:var(--cyan-bright);font-weight:600}
+  .hero-actions{display:flex;gap:14px;margin-top:34px;flex-wrap:wrap}
+  .chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:40px}
+  .chip{
+    display:inline-flex;align-items:center;gap:9px;font-size:12.5px;color:#bcd0de;
+    padding:8px 14px;border:1px solid var(--line-strong);border-radius:100px;
+    background:rgba(10,16,28,.55);backdrop-filter:blur(6px);
+  }
+  .chip b{color:var(--cyan-bright);font-weight:700}
+  .chip .dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+  .data-credit{
+    margin-top:22px;font-size:11.5px;color:var(--faint);max-width:52ch;letter-spacing:.01em;
+  }
+  .data-credit a{color:var(--muted);text-decoration:underline;text-underline-offset:2px}
+  .scroll-hint{
+    position:absolute;left:50%;bottom:26px;transform:translateX(-50%);
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+    font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint);
+    z-index:11;
+  }
+  .scroll-hint .rail{width:1px;height:40px;background:linear-gradient(var(--cyan),transparent);position:relative;overflow:hidden}
+  .scroll-hint .rail::after{content:"";position:absolute;top:-40%;left:0;width:1px;height:40%;background:var(--cyan-bright);animation:dive 1.9s ease-in-out infinite}
+  @keyframes dive{0%{top:-40%}70%,100%{top:100%}}
+
+  /* ---------- Intro band ---------- */
+  .intro{background:linear-gradient(180deg, rgba(5,7,14,0), rgba(5,7,14,.82) 26%)}
+  .intro .big{
+    font-size:clamp(22px,3.4vw,40px);line-height:1.28;font-weight:600;letter-spacing:-.02em;
+    max-width:24ch;
+  }
+  .intro .big em{font-style:normal;color:var(--cyan-bright)}
+  .intro-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:clamp(30px,6vw,80px);align-items:start}
+  .intro-grid p{color:var(--muted);font-size:16.5px}
+  .triad{display:flex;flex-direction:column;gap:2px;margin-top:8px}
+  .triad div{display:flex;align-items:baseline;gap:14px;padding:16px 0;border-top:1px solid var(--line)}
+  .triad div:last-child{border-bottom:1px solid var(--line)}
+  .triad .k{font-weight:700;color:var(--ink);font-size:16px;min-width:150px}
+  .triad .v{color:var(--muted);font-size:14.5px}
+
+  /* ---------- Section header ---------- */
+  .sec-head{max-width:70ch;margin-bottom:56px}
+  .sec-head h2{font-size:clamp(30px,4.6vw,54px);margin-bottom:18px}
+  .kicker-row{display:flex;flex-wrap:wrap;gap:8px 22px;align-items:center;color:var(--faint);font-size:13.5px;margin-bottom:6px}
+
+  /* ---------- Cards / research ---------- */
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .card{
+    background:linear-gradient(180deg,var(--surface),var(--bg2));
+    border:1px solid var(--line);border-radius:var(--r);padding:30px 26px 28px;
+    position:relative;overflow:hidden;transition:.35s;
+  }
+  .card::before{
+    content:"";position:absolute;inset:0;border-radius:var(--r);padding:1px;
+    background:linear-gradient(180deg,rgba(69,224,216,.35),transparent 40%);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:.35s;
+  }
+  .card:hover{transform:translateY(-4px);border-color:var(--line-strong)}
+  .card:hover::before{opacity:1}
+  .card .ic{width:46px;height:46px;margin-bottom:22px;color:var(--cyan)}
+  .card h3{font-size:20px;margin-bottom:12px;letter-spacing:-.01em}
+  .card p{color:var(--muted);font-size:14.5px}
+  .card .num{position:absolute;top:22px;right:24px;font-size:12px;color:var(--faint);font-variant-numeric:tabular-nums}
+
+  .tags{display:flex;flex-wrap:wrap;gap:9px;margin-top:44px}
+  .tag{
+    font-size:13px;color:#c7d8e4;padding:8px 15px;border-radius:100px;
+    border:1px solid var(--line);background:rgba(13,21,38,.6);
+  }
+  .tags-label{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:16px;font-weight:600}
+
+  /* ---------- Projects ---------- */
+  .proj-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+  .proj{
+    border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
+    background:var(--surface);transition:.35s;display:flex;flex-direction:column;
+  }
+  .proj:hover{transform:translateY(-4px);border-color:var(--line-strong)}
+  .proj .thumb{aspect-ratio:16/9;position:relative;overflow:hidden}
+  .proj .thumb svg{width:100%;height:100%;display:block}
+  .proj .thumb .place{position:absolute;left:14px;top:12px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.72);z-index:2}
+  .proj .body{padding:24px 24px 26px}
+  .proj h3{font-size:19px;margin-bottom:14px}
+  .proj dl{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;margin:0;font-size:13.8px}
+  .proj dt{color:var(--cyan);font-weight:600;white-space:nowrap}
+  .proj dd{margin:0;color:var(--muted)}
+  .example-note{font-size:12px;color:var(--faint);margin-top:20px}
+
+  /* ---------- Mission ---------- */
+  .mission{background:radial-gradient(120% 120% at 80% 0%, rgba(28,58,96,.35), rgba(5,7,14,.82) 60%)}
+  .mission h2{font-size:clamp(30px,5.6vw,68px);max-width:16ch;margin-bottom:34px}
+  .mission h2 em{font-style:normal;color:var(--cyan)}
+  .mission-cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px}
+  .creeds{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:70px;border-top:1px solid var(--line)}
+  .creeds div{padding:30px 26px 30px 0;border-right:1px solid var(--line)}
+  .creeds div:last-child{border-right:0}
+  .creeds .n{font-size:12px;color:var(--cyan);font-variant-numeric:tabular-nums;margin-bottom:14px}
+  .creeds h4{font-size:17px;margin:0 0 8px;font-weight:700}
+  .creeds p{color:var(--muted);font-size:14px}
+
+  /* ---------- Service ---------- */
+  .svc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  .svc{padding:30px 30px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);transition:.3s}
+  .svc:nth-child(2n){border-right:0}
+  .svc:hover{background:var(--surface)}
+  .svc h4{display:flex;align-items:center;gap:12px;font-size:17px;margin-bottom:10px}
+  .svc h4 .ic{width:22px;height:22px;color:var(--cyan);flex:0 0 auto}
+  .svc p{color:var(--muted);font-size:14px}
+
+  /* ---------- About ---------- */
+  .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,6vw,72px);align-items:center}
+  .about-grid p{color:var(--muted);margin-bottom:18px;font-size:16px}
+  .facts{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .fact{border:1px solid var(--line);border-radius:14px;padding:22px 20px;background:var(--surface)}
+  .fact .big{font-size:clamp(26px,3.4vw,38px);font-weight:800;letter-spacing:-.02em;color:var(--ink)}
+  .fact .lbl{font-size:13px;color:var(--muted);margin-top:6px}
+
+  /* ---------- Partner ---------- */
+  .partner-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:12px}
+  .plogo{
+    border:1px solid var(--line);border-radius:12px;height:92px;display:flex;align-items:center;justify-content:center;
+    color:var(--faint);font-size:13px;font-weight:600;letter-spacing:.02em;text-align:center;padding:10px;
+    background:var(--surface);transition:.3s;
+  }
+  .plogo:hover{color:var(--muted);border-color:var(--line-strong)}
+  .partner-cats{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+
+  /* ---------- Contact ---------- */
+  .contact{background:linear-gradient(180deg,rgba(5,7,14,.82),rgba(7,13,24,.9))}
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,6vw,72px)}
+  .audiences{display:flex;flex-wrap:wrap;gap:10px;margin:24px 0 8px}
+  .form{display:grid;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:28px}
+  .form label{font-size:12.5px;color:var(--muted);font-weight:600;letter-spacing:.02em}
+  .form input,.form textarea,.form select{
+    width:100%;margin-top:7px;background:var(--bg2);border:1px solid var(--line-strong);color:var(--ink);
+    border-radius:10px;padding:12px 14px;font:inherit;font-size:14px;transition:.2s;
+  }
+  .form input:focus,.form textarea:focus,.form select:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(69,224,216,.13)}
+  .form textarea{resize:vertical;min-height:96px}
+  .form .note{font-size:11.5px;color:var(--faint)}
+
+  /* ---------- Footer ---------- */
+  footer{border-top:1px solid var(--line);background:rgba(6,10,19,.9);padding:64px 0 40px}
+  .foot-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:34px}
+  footer h5{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin:0 0 16px;font-weight:700}
+  footer a{display:block;color:var(--muted);font-size:14px;padding:5px 0;transition:.2s}
+  footer a:hover{color:var(--ink)}
+  .foot-bottom{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-top:52px;padding-top:26px;border-top:1px solid var(--line);color:var(--faint);font-size:12.5px}
+  .impressum{color:var(--faint);font-size:12.5px;line-height:1.9;margin-top:8px}
+
+  /* ---------- Depth gauge (scroll progress) ---------- */
+  .gauge{position:fixed;right:18px;top:50%;transform:translateY(-50%);z-index:35;display:flex;flex-direction:column;align-items:center;gap:0;pointer-events:none;mix-blend-mode:screen}
+  .gauge .track{width:2px;height:180px;background:var(--line-strong);position:relative;border-radius:2px}
+  .gauge .fill{position:absolute;top:0;left:0;width:2px;background:linear-gradient(var(--cyan-bright),var(--blue));border-radius:2px;height:0}
+  .gauge .lab{font-size:9.5px;letter-spacing:.12em;color:var(--faint);margin-top:8px;font-variant-numeric:tabular-nums}
+
+  /* ---------- Reveal ---------- */
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+  .reveal.d1{transition-delay:.08s}.reveal.d2{transition-delay:.16s}.reveal.d3{transition-delay:.24s}
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:940px){
+    nav.links{display:none}
+    .burger{display:block}
+    .grid-3,.proj-grid,.creeds,.svc-grid,.about-grid,.contact-grid,.intro-grid{grid-template-columns:1fr}
+    .creeds div{border-right:0;border-bottom:1px solid var(--line);padding:26px 0}
+    .svc:nth-child(n){border-right:0}
+    .partner-grid{grid-template-columns:repeat(2,1fr)}
+    .foot-grid{grid-template-columns:1fr 1fr}
+    .gauge{display:none}
+    .facts{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width:560px){
+    .foot-grid{grid-template-columns:1fr}
+    .hero .wrap{padding-top:104px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .reveal{transition:none;opacity:1;transform:none}
+    .scroll-hint .rail::after{animation:none}
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bathy" aria-hidden="true"></canvas>
+<div class="hero-fade" aria-hidden="true"></div>
+
+<!-- depth gauge -->
+<div class="gauge" aria-hidden="true">
+  <div class="track"><div class="fill" id="gfill"></div></div>
+  <div class="lab" id="glab">0&thinsp;m</div>
+</div>
+
+<!-- ================= NAV ================= -->
+<header class="nav" id="nav">
+  <a class="brand" href="#top">
+    <img class="mark" src="__LOGO_DATAURI__" alt="Science under Pressure Logo">
+    <span>Science under Pressure<small>Unterwasser&shy;forschung · Verein</small></span>
+  </a>
+  <nav class="links">
+    <a href="#forschung">Forschung</a>
+    <a href="#mission">Mission</a>
+    <a href="#service">Service</a>
+    <a href="#about">Über uns</a>
+  </nav>
+  <div class="nav-cta">
+    <a href="#mitmachen" class="btn btn-primary">Kontakt</a>
+  </div>
+  <button class="burger" id="burger" aria-label="Menü">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+  </button>
+</header>
+
+<main id="top">
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="wrap">
+    <div class="eyebrow reveal in">Archive · Lebensräume · Frühwarnsysteme</div>
+    <h1 class="reveal in">Science<br><span class="u">under Pressure</span></h1>
+    <p class="hero-sub reveal in d1">
+      Zwei Arten von Druck prägen unsere Gewässer: der <b>Tiefendruck</b> unter
+      der Oberfläche — und der <b>Umweltdruck</b> des Klimawandels darüber.
+      Wir erforschen beide, sichern die Spuren und machen sie verständlich.
+    </p>
+    <div class="hero-actions reveal in d2">
+      <a href="#forschung" class="btn btn-primary">Forschungsbereiche
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+    <div class="chips reveal in d3">
+      <span class="chip"><span class="dot"></span>Relief: <b>Walensee</b></span>
+      <span class="chip"><b>141 m</b> Tiefe kartiert</span>
+      <span class="chip"><b>23,3 km²</b> Seegrund</span>
+      <span class="chip">Echte Bathymetrie</span>
+    </div>
+    <p class="data-credit reveal in d3">
+      Das 3D-Relief oben ist keine Illustration, sondern das reale digitale
+      Tiefenmodell des Walensees — <a href="https://www.swisstopo.admin.ch/de/hoehenmodell-swissbathy3d" target="_blank" rel="noopener">swissBATHY3D © swisstopo</a>.
+    </p>
+  </div>
+  <div class="scroll-hint" aria-hidden="true"><div class="rail"></div><span>Abtauchen</span></div>
+</section>
+
+<!-- ================= INTRO ================= -->
+<section class="intro band section-pad" id="intro">
+  <div class="wrap intro-grid">
+    <div class="reveal">
+      <div class="eyebrow">Warum das wichtig ist</div>
+      <p class="big">Gewässer sind <em>Archive</em>, <em>Lebensräume</em> und <em>Frühwarnsysteme</em> — zugleich.</p>
+    </div>
+    <div class="reveal d1">
+      <p>
+        Unter der Wasseroberfläche finden sich Spuren vergangener Kulturen,
+        empfindliche Ökosysteme und messbare Hinweise auf Umweltveränderungen.
+        Unsere Arbeit hilft, diese Informationen zu sichern, wissenschaftlich
+        auszuwerten und verständlich zugänglich zu machen.
+      </p>
+      <div class="triad">
+        <div><span class="k">Archiv</span><span class="v">Versunkene Siedlungen, Wracks und Kulturgüter erzählen Geschichte.</span></div>
+        <div><span class="k">Lebensraum</span><span class="v">Arten und Habitate reagieren früh und sensibel auf Veränderung.</span></div>
+        <div><span class="k">Frühwarnsystem</span><span class="v">Temperatur, Sauerstoff und Sediment zeigen den Wandel messbar an.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FORSCHUNG ================= -->
+<section class="band section-pad" id="forschung">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">Forschungsbereiche</div>
+      <h2>Drei Disziplinen, ein Wasserkörper.</h2>
+      <p class="lead">Wir verbinden Kulturgeschichte, Ökologie und Gewässerphysik zu einem
+        gemeinsamen Bild dessen, was unter der Oberfläche geschieht.</p>
+    </div>
+    <div class="grid-3">
+      <div class="card reveal">
+        <span class="num">01</span>
+        <svg class="ic" viewBox="0 0 48 48" fill="none"><path d="M8 40h32M12 40V22l12-9 12 9v18M20 40V28h8v12" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M6 20 24 7l18 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <h3>Unterwasserarchäologie</h3>
+        <p>Wir dokumentieren und erforschen Spuren menschlicher Geschichte unter Wasser:
+          historische Schiffe, Siedlungsreste, Kulturgüter und andere versunkene Strukturen.</p>
+      </div>
+      <div class="card reveal d1">
+        <span class="num">02</span>
+        <svg class="ic" viewBox="0 0 48 48" fill="none"><path d="M40 24c-6 8-14 12-20 12S8 30 8 24s6-12 12-12 14 4 20 12Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="17" cy="22" r="2.4" fill="currentColor"/><path d="M40 24c2 0 4-1 5-3M40 24c2 0 4 1 5 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <h3>Marine Biologie &amp; Ökologie</h3>
+        <p>Wir untersuchen Arten, Lebensräume und ökologische Veränderungen in aquatischen
+          Systemen — von kontinuierlichem Monitoring bis zur Habitatkartierung.</p>
+      </div>
+      <div class="card reveal d2">
+        <span class="num">03</span>
+        <svg class="ic" viewBox="0 0 48 48" fill="none"><path d="M6 14h36M6 24h36M6 34h36" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" opacity=".55"/><path d="M6 14c6 0 6 6 12 6s6-6 12-6 6 6 12 6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><circle cx="30" cy="24" r="2.2" fill="currentColor"/></svg>
+        <h3>Ozeanographie &amp; Gewässerkunde</h3>
+        <p>Wir erfassen physikalische, chemische und biologische Prozesse in Seen, Flüssen
+          und küstennahen Gewässern — und wie sie sich über die Zeit verändern.</p>
+      </div>
+    </div>
+    <div class="tags-label reveal" style="margin-top:52px">Unsere Methoden</div>
+    <div class="tags reveal" style="margin-top:0">
+      <span class="tag">Tauchen</span>
+      <span class="tag">Kartierung</span>
+      <span class="tag">Probenahme</span>
+      <span class="tag">Fotogrammetrie</span>
+      <span class="tag">Bathymetrie</span>
+      <span class="tag">Monitoring</span>
+      <span class="tag">Datenanalyse</span>
+      <span class="tag">Wissenschaftskommunikation</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MISSION ================= -->
+<section class="mission section-pad" id="mission">
+  <div class="wrap">
+    <div class="eyebrow reveal">Unsere Mission</div>
+    <h2 class="reveal">Wissen sichern, bevor es <em>versinkt</em> — und teilen, bevor es vergessen wird.</h2>
+    <div class="creeds">
+      <div class="reveal"><div class="n">Kerngedanke 01</div><h4>Dokumentieren</h4><p>Was unter Wasser liegt, verschwindet leise. Wir halten es fest, bevor es verloren geht.</p></div>
+      <div class="reveal d1"><div class="n">Kerngedanke 02</div><h4>Verstehen</h4><p>Daten werden erst wertvoll, wenn sie zusammenhängend ausgewertet werden.</p></div>
+      <div class="reveal d2"><div class="n">Kerngedanke 03</div><h4>Zugänglich machen</h4><p>Wissenschaft wirkt nur, wenn sie verständlich geteilt wird — offen und neutral.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SERVICE ================= -->
+<section class="band section-pad" id="service">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">Service</div>
+      <h2>Womit wir unterstützen.</h2>
+      <p class="lead">Für Behörden, Museen, Universitäten und Naturschutz — von der Feldaufnahme
+        bis zur verständlichen Aufbereitung.</p>
+    </div>
+    <div class="svc-grid">
+      <div class="svc reveal"><h4><svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M3 8c4 0 4 4 9 4s5-4 9-4M3 16c4 0 4-3 9-3s5 3 9 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Bathymetrie &amp; Kartierung</h4><p>Hochauflösende Tiefen- und Habitatkarten von Seen, Flüssen und Uferzonen.</p></div>
+      <div class="svc reveal d1"><h4><svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M4 20V10m5 10V4m5 16v-7m5 7V8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Monitoring &amp; Zeitreihen</h4><p>Wiederkehrende Messungen, die Veränderungen früh und belastbar sichtbar machen.</p></div>
+      <div class="svc reveal"><h4><svg class="ic" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M8 15l3-3 2 2 3-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Gutachten &amp; Beratung</h4><p>Fachliche Einschätzungen für Denkmalpflege, Gewässerschutz und Planung.</p></div>
+      <div class="svc reveal d1"><h4><svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M12 3v4m0 10v4m9-9h-4M7 12H3m14.5-6.5-3 3m-6 6-3 3m12 0-3-3m-6-6-3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Fotogrammetrie &amp; 3D</h4><p>Fotorealistische 3D-Modelle von Fundstellen, Wracks und Strukturen.</p></div>
+      <div class="svc reveal"><h4><svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M4 5h16M4 12h10M4 19h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>Datenanalyse</h4><p>Auswertung, Visualisierung und Aufbereitung von Mess- und Bilddaten.</p></div>
+      <div class="svc reveal d1"><h4><svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v11H9l-4 4V5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Wissenschaftskommunikation</h4><p>Ausstellungen, Vorträge und Materialien, die Forschung erlebbar machen.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ABOUT ================= -->
+<section class="band section-pad" id="about">
+  <div class="wrap about-grid">
+    <div class="reveal">
+      <div class="eyebrow">Über uns</div>
+      <h2 style="font-size:clamp(28px,4.4vw,50px);margin-bottom:22px">Ein unabhängiger Verein mit wissenschaftlichem Anspruch.</h2>
+      <p>Wir sind ein Zusammenschluss von Forschenden und erfahrenen Tauchern aus
+        Archäologie, Biologie und Gewässerkunde — mit Erfahrung in ganz unterschiedlichen
+        Gewässern, von Flüssen über Seen bis ins Meer. Unsere Arbeit ist unabhängig und
+        der wissenschaftlichen Methode verpflichtet.</p>
+      <p>Wir arbeiten neutral und transparent: Ergebnisse werden nachvollziehbar
+        dokumentiert und offen zugänglich gemacht. So schaffen wir Vertrauen — bei
+        Partnern, Behörden und der Öffentlichkeit.</p>
+    </div>
+    <div class="facts reveal d1">
+      <div class="fact"><div class="big">Unabhängig</div><div class="lbl">Wissenschaftlich &amp; neutral</div></div>
+      <div class="fact"><div class="big">3</div><div class="lbl">Forschungsdisziplinen unter einem Dach</div></div>
+      <div class="fact"><div class="big">DACH</div><div class="lbl">Deutschland · Österreich · Schweiz</div></div>
+      <div class="fact"><div class="big">Transparent</div><div class="lbl">Offene, überprüfbare Daten</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MITMACHEN / KONTAKT ================= -->
+<section class="contact band section-pad" id="mitmachen">
+  <div class="wrap contact-grid">
+    <div class="reveal">
+      <div class="eyebrow" id="kontakt">Mitmachen &amp; Kontakt</div>
+      <h2 style="font-size:clamp(28px,4.4vw,50px);margin-bottom:20px">Ob Feld, Labor oder Schreibtisch — es gibt einen Platz für dich.</h2>
+      <p class="lead">Wir freuen uns über Forschende, Studierende, Behörden, Museen,
+        Taucher:innen und alle, die Gewässer schützen und verstehen wollen.</p>
+      <div class="audiences">
+        <span class="tag">Forschende</span>
+        <span class="tag">Studierende</span>
+        <span class="tag">Behörden</span>
+        <span class="tag">Museen</span>
+        <span class="tag">Taucher:innen</span>
+        <span class="tag">Interessierte</span>
+      </div>
+    </div>
+    <form class="form reveal d1" onsubmit="return false">
+      <div><label>Name<input type="text" placeholder="Vor- und Nachname"></label></div>
+      <div><label>E-Mail<input type="email" placeholder="name@beispiel.ch"></label></div>
+      <div><label>Ich bin…<select><option>Forschende:r</option><option>Studierende:r</option><option>Behörde</option><option>Museum</option><option>Taucher:in</option><option>Interessierte:r</option></select></label></div>
+      <div><label>Nachricht<textarea placeholder="Wie möchtest du mitwirken?"></textarea></label></div>
+      <button class="btn btn-primary" type="submit" style="justify-content:center">Nachricht senden</button>
+      <p class="note">Formular ist ein Platzhalter (Demo). Anbindung an E-Mail/Backend folgt.</p>
+    </form>
+  </div>
+</section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a class="brand" href="#top" style="margin-bottom:14px">
+          <img class="mark" src="__LOGO_DATAURI__" alt="Science under Pressure Logo" style="width:34px;height:34px">
+          <span>Science under Pressure</span>
+        </a>
+        <p style="color:var(--muted);font-size:14px;max-width:34ch">Gewässer sind Archive, Lebensräume und Frühwarnsysteme zugleich. Wir sichern, was unter der Oberfläche liegt.</p>
+        <div class="impressum">
+          <strong style="color:var(--muted)">Impressum</strong> · Science under Pressure (Verein)<br>
+          Sitz: [Ort] · Vertreten durch: [Name]<br>
+          Kontakt: <a href="mailto:info@science-under-pressure.ch" style="display:inline;color:var(--muted);text-decoration:underline">info@science-under-pressure.ch</a> <em>(Platzhalter)</em>
+        </div>
+      </div>
+      <div>
+        <h5>Forschung</h5>
+        <a href="#forschung">Unterwasserarchäologie</a>
+        <a href="#forschung">Marine Biologie &amp; Ökologie</a>
+        <a href="#forschung">Ozeanographie</a>
+      </div>
+      <div>
+        <h5>Verein</h5>
+        <a href="#about">Über uns</a>
+        <a href="#mission">Mission</a>
+        <a href="#service">Service</a>
+      </div>
+      <div>
+        <h5>Mitmachen</h5>
+        <a href="#mitmachen">Mitglied werden</a>
+        <a href="#kontakt">Kontakt</a>
+        <a href="#mitmachen">Spenden</a>
+        <a href="https://www.swisstopo.admin.ch/de/hoehenmodell-swissbathy3d" target="_blank" rel="noopener">Datenquelle: swissBATHY3D</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© <span id="yr"></span> Science under Pressure · Verein für wissenschaftliche Unterwasserforschung</span>
+      <span>3D-Relief: Walensee · swissBATHY3D © swisstopo · CC-konform</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ================= THREE.JS BATHYMETRY HERO ================= -->
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+const HEIGHTMAP = "__HEIGHTMAP_DATAURI__";
+const HM_W = __HM_W__, HM_H = __HM_H__;
+const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+const canvas = document.getElementById('bathy');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true, powerPreference:'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x071019, 0.026);
+
+const camera = new THREE.PerspectiveCamera(42, innerWidth/innerHeight, 0.1, 200);
+const camBase = new THREE.Vector3(0, 4.0, 6.7);
+camera.position.copy(camBase);
+camera.lookAt(0, -0.2, 0);
+
+const group = new THREE.Group();
+scene.add(group);
+
+const loader = new THREE.TextureLoader();
+const tex = loader.load(HEIGHTMAP);
+tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
+tex.minFilter = THREE.LinearFilter;
+tex.magFilter = THREE.LinearFilter;
+tex.generateMipmaps = false;
+
+const AR = HM_W / HM_H;                 // heightmap aspect (~5.28)
+const PW = 11.0, PH = PW / AR;          // plane world size
+const geo = new THREE.PlaneGeometry(PW, PH, Math.min(900, HM_W), Math.min(220, HM_H));
+
+const uniforms = {
+  uHeight:{ value: tex },
+  uTime:{ value: 0 },
+  uDepth:{ value: 2.4 },               // vertical exaggeration
+  uTexel:{ value: new THREE.Vector2(1/HM_W, 1/HM_H) },
+  uReveal:{ value: 0 },
+};
+
+const material = new THREE.ShaderMaterial({
+  uniforms,
+  transparent:true,
+  vertexShader:`
+    uniform sampler2D uHeight; uniform float uDepth; uniform vec2 uTexel;
+    varying float vDepth; varying float vMask; varying vec3 vN; varying vec2 vUv;
+    void main(){
+      vUv = uv;
+      vec4 h = texture2D(uHeight, uv);
+      float height = h.r;          // 1 = shore/surface, 0 = deepest
+      vMask = h.g;                 // 1 = water
+      vDepth = 1.0 - height;       // 0 surface .. 1 deep
+      vec3 pos = position;
+      pos.z += (height - 1.0) * uDepth;   // carve basin downward
+      // normal from heightmap gradient
+      float hl = texture2D(uHeight, uv - vec2(uTexel.x,0.)).r;
+      float hr = texture2D(uHeight, uv + vec2(uTexel.x,0.)).r;
+      float hd = texture2D(uHeight, uv - vec2(0.,uTexel.y)).r;
+      float hu = texture2D(uHeight, uv + vec2(0.,uTexel.y)).r;
+      vN = normalize(vec3((hl-hr)*uDepth*2.2, (hd-hu)*uDepth*2.2, 0.16));
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(pos,1.0);
+    }`,
+  fragmentShader:`
+    precision highp float;
+    uniform float uTime; uniform float uReveal;
+    varying float vDepth; varying float vMask; varying vec3 vN; varying vec2 vUv;
+    vec3 pal(float t){
+      vec3 shallow = vec3(0.45,0.98,0.90);
+      vec3 mid     = vec3(0.12,0.52,0.82);
+      vec3 deep    = vec3(0.05,0.14,0.38);
+      vec3 c = mix(shallow, mid, smoothstep(0.0,0.5,t));
+      c = mix(c, deep, smoothstep(0.42,1.0,t));
+      return c;
+    }
+    void main(){
+      // staggered fade-in across the lake
+      float rev = smoothstep(0.0,1.0, uReveal - vUv.x*0.35);
+      if(vMask < 0.5){
+        discard;              // land transparent: the lake floats as a glowing silhouette
+      }
+      vec3 col = pal(vDepth);
+      vec3 L = normalize(vec3(0.32,0.62,0.72));
+      float diff = clamp(dot(normalize(vN), L)*0.5+0.5, 0.0, 1.0);
+      col *= mix(0.62, 1.35, diff);
+      // isobath contour lines (~ every 10 m over 141 m)
+      float lines = 14.0;
+      float f = abs(fract(vDepth*lines)-0.5);
+      col += smoothstep(0.09,0.0,f) * vec3(0.4,1.0,0.92) * 0.7;
+      // bright shoreline rim (shallowest water)
+      col += smoothstep(0.12,0.0,vDepth) * vec3(0.5,1.0,0.94) * 0.5;
+      // caustic shimmer in shallows
+      float ca = sin(vUv.x*70.0 + uTime*1.4) * sin(vUv.y*150.0 - uTime*1.05);
+      col += smoothstep(0.0,0.4,1.0-vDepth) * ca*ca * 0.06 * vec3(0.5,1.0,0.95);
+      // sonar sweep
+      float sweep = fract(vUv.x - uTime*0.045);
+      col += smoothstep(0.012,0.0,abs(sweep)) * vec3(0.3,0.9,0.85) * 0.5;
+      gl_FragColor = vec4(col * 1.12, rev);
+    }`,
+});
+
+const mesh = new THREE.Mesh(geo, material);
+mesh.rotation.x = -Math.PI * 0.5;      // lay flat (lake long-axis along X)
+group.add(mesh);
+group.rotation.y = 0.62;               // sweep the lake diagonally across the frame
+group.rotation.x = 0.16;               // slight pitch
+
+// faint plankton particles
+const pc = 340;
+const pg = new THREE.BufferGeometry();
+const parr = new Float32Array(pc*3);
+for(let i=0;i<pc;i++){ parr[i*3]=(Math.random()-0.5)*22; parr[i*3+1]=Math.random()*7-1; parr[i*3+2]=(Math.random()-0.5)*10; }
+pg.setAttribute('position', new THREE.BufferAttribute(parr,3));
+const pm = new THREE.PointsMaterial({ color:0x67e8dd, size:0.02, transparent:true, opacity:0.5, depthWrite:false });
+const points = new THREE.Points(pg, pm);
+scene.add(points);
+
+// interaction
+let mx=0, my=0, tmx=0, tmy=0;
+addEventListener('pointermove', e=>{ tmx=(e.clientX/innerWidth-0.5); tmy=(e.clientY/innerHeight-0.5); }, {passive:true});
+let scrollP = 0;
+addEventListener('scroll', ()=>{ scrollP = Math.min(1, scrollY / innerHeight); }, {passive:true});
+addEventListener('resize', ()=>{
+  camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+const clock = new THREE.Clock();
+let revealT = 0;
+// Keep the lake as a dim, persistent background instead of fading it out.
+// Cap the framerate so continuous rendering stays gentle on battery
+// (a harder cap when the user prefers reduced motion).
+let lastFrame = -1;
+const MIN_DT = 1/(reduce ? 15 : 30);
+const BG_FLOOR = 0.18;            // lake never fully disappears anymore
+function animate(){
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+  if(t - lastFrame < MIN_DT) return;
+  lastFrame = t;
+  uniforms.uTime.value = t;
+  revealT = Math.min(1.35, revealT + (reduce?1.35:0.012));
+  uniforms.uReveal.value = revealT;
+
+  mx += (tmx-mx)*0.05; my += (tmy-my)*0.05;
+
+  group.rotation.y = 0.62 + (reduce?0:Math.sin(t*0.14)*0.13) + mx*0.28;
+  group.rotation.x = 0.16 + my*0.10 + scrollP*0.30;
+  group.position.y = -0.15 + Math.sin(t*0.4)*0.05;
+
+  // camera dive on scroll + mouse parallax
+  camera.position.x = camBase.x + mx*1.6;
+  camera.position.y = camBase.y - scrollP*2.6 + my*0.6;
+  camera.position.z = camBase.z - scrollP*1.4;
+  camera.lookAt(0, -0.4 - scrollP*0.3, 0);
+
+  points.rotation.y = t*0.02;
+
+  // dim toward a floor as we scroll into content, but keep the lake alive behind everything
+  const op = BG_FLOOR + (1 - BG_FLOOR) * Math.max(0, 1 - scrollP*1.05);
+  canvas.style.opacity = String(op);
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+
+<!-- ================= UI SCRIPT ================= -->
+<script>
+  document.getElementById('yr').textContent = new Date().getFullYear();
+  const nav = document.getElementById('nav');
+  addEventListener('scroll', ()=>{ nav.classList.toggle('scrolled', scrollY>40); }, {passive:true});
+
+  // reveal on scroll
+  const io = new IntersectionObserver((es)=>{
+    es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+  }, { threshold:0.12, rootMargin:'0px 0px -8% 0px' });
+  document.querySelectorAll('.reveal:not(.in)').forEach(el=>io.observe(el));
+
+  // depth gauge
+  const gfill = document.getElementById('gfill'), glab = document.getElementById('glab');
+  const MAXDEPTH = 141;
+  addEventListener('scroll', ()=>{
+    const h = document.documentElement;
+    const p = h.scrollTop / (h.scrollHeight - h.clientHeight);
+    gfill.style.height = (p*180)+'px';
+    glab.innerHTML = Math.round(p*MAXDEPTH)+' m';
+  }, {passive:true});
+
+  // mobile menu (simple anchor scroll: reveal hidden links)
+  document.getElementById('burger')?.addEventListener('click', ()=>{
+    document.querySelector('nav.links')?.scrollIntoView();
+    location.hash = '#forschung';
+  });
+</script>
+
+</body>
+</html>
