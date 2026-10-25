@@ -275,25 +275,448 @@
   .reveal.d1{transition-delay:.08s}.reveal.d2{transition-delay:.16s}.reveal.d3{transition-delay:.24s}
 
   /* ---------- Responsive ---------- */
-  @media (max-width:940px){
-    nav.links{display:none}
-    .burger{display:block}
-    .grid-3,.proj-grid,.creeds,.svc-grid,.about-grid,.contact-grid,.intro-grid{grid-template-columns:1fr}
-    .creeds div{border-right:0;border-bottom:1px solid var(--line);padding:26px 0}
-    .svc:nth-child(n){border-right:0}
-    .partner-grid{grid-template-columns:repeat(2,1fr)}
-    .foot-grid{grid-template-columns:1fr 1fr}
-    .gauge{display:none}
-    .facts{grid-template-columns:1fr 1fr}
+
+/* ========== RESPONSIVE DESIGN ========== */
+
+/* Mobile Kontaktlink auf Desktop verstecken */
+nav.links .mobile-contact {
+  display: none;
+}
+
+/* Bessere Bedienbarkeit mit Tastatur */
+.burger:focus-visible,
+nav.links a:focus-visible,
+.btn:focus-visible {
+  outline: 2px solid var(--cyan-bright);
+  outline-offset: 3px;
+}
+
+/* ---------- TABLET UND SMARTPHONE ---------- */
+@media (max-width: 940px) {
+
+  header.nav {
+    gap: 12px;
+    padding: 12px clamp(16px, 4vw, 30px);
   }
-  @media (max-width:560px){
-    .foot-grid{grid-template-columns:1fr}
-    .hero .wrap{padding-top:104px}
+
+  header.nav .brand,
+  header.nav .brand span {
+    min-width: 0;
   }
-  @media (prefers-reduced-motion:reduce){
-    .reveal{transition:none;opacity:1;transform:none}
-    .scroll-hint .rail::after{animation:none}
+
+  /* Normale Desktop-Navigation ausblenden */
+  nav.links {
+    display: none;
   }
+
+  .nav-cta {
+    display: none;
+  }
+
+  /* Hamburger-Menü */
+  .burger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    background: rgba(13, 21, 38, .65);
+    touch-action: manipulation;
+  }
+
+  .burger[aria-expanded="true"] {
+    border-color: var(--cyan);
+    background: var(--surface);
+  }
+
+  body.menu-open {
+    overflow: hidden;
+  }
+
+  body.menu-open header.nav {
+    background: rgba(6, 9, 17, .97);
+    backdrop-filter: blur(14px);
+  }
+
+  /* Geöffnetes Mobilmenü */
+  nav.links.is-open {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 3px;
+
+    position: absolute;
+    top: calc(100% - 1px);
+    left: clamp(12px, 4vw, 30px);
+    right: clamp(12px, 4vw, 30px);
+    z-index: 41;
+
+    padding: 10px;
+    background: rgba(9, 16, 29, .98);
+    border: 1px solid var(--line-strong);
+    border-radius: 14px;
+    box-shadow: 0 18px 42px rgba(0, 0, 0, .52);
+
+    max-height: calc(100dvh - 85px);
+    overflow-y: auto;
+  }
+
+  nav.links.is-open a {
+    display: flex;
+    align-items: center;
+    min-height: 46px;
+    padding: 11px 14px;
+    font-size: 15px;
+    color: var(--ink);
+  }
+
+  nav.links.is-open .mobile-contact {
+    display: flex;
+    color: var(--cyan-bright);
+    border-top: 1px solid var(--line);
+    margin-top: 4px;
+    border-radius: 0;
+  }
+
+  /* Mehrspaltiges Layout wird einspaltig */
+  .grid-3,
+  .proj-grid,
+  .creeds,
+  .svc-grid,
+  .about-grid,
+  .contact-grid,
+  .intro-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .creeds div {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 26px 0;
+  }
+
+  .svc:nth-child(n) {
+    border-right: 0;
+  }
+
+  .partner-grid,
+  .facts,
+  .foot-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .gauge {
+    display: none;
+  }
+
+  .hero {
+    min-height: 100svh;
+  }
+}
+
+/* ---------- SMARTPHONE ---------- */
+@media (max-width: 560px) {
+
+  header.nav {
+    padding: 10px 16px;
+  }
+
+  .brand {
+    gap: 8px;
+    font-size: 14px;
+    line-height: 1.2;
+  }
+
+  .brand .mark {
+    width: 28px;
+    height: 28px;
+  }
+
+  .brand small {
+    font-size: 9px;
+    letter-spacing: .07em;
+    line-height: 1.35;
+    margin-top: 3px;
+  }
+
+  .wrap {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .section-pad {
+    padding: 66px 0;
+  }
+
+  .sec-head {
+    margin-bottom: 32px;
+  }
+
+  .sec-head h2 {
+    font-size: clamp(29px, 8vw, 39px);
+    line-height: 1.1;
+  }
+
+  .eyebrow {
+    font-size: 10.5px;
+    letter-spacing: .11em;
+    line-height: 1.5;
+    gap: 7px;
+  }
+
+  .eyebrow::before {
+    width: 14px;
+    flex-shrink: 0;
+  }
+
+  /* Startseite */
+  .hero {
+    min-height: 100svh;
+    align-items: center;
+  }
+
+  .hero .wrap {
+    padding-top: 112px;
+    padding-bottom: 64px;
+  }
+
+  .hero h1 {
+    font-size: clamp(34px, 9.2vw, 51px);
+    line-height: 1.02;
+    margin-bottom: 22px;
+  }
+
+  .hero-sub {
+    font-size: 16px;
+    line-height: 1.55;
+    max-width: 34ch;
+  }
+
+  .hero-actions {
+    margin-top: 25px;
+    gap: 10px;
+  }
+
+  .hero-actions .btn {
+    min-height: 44px;
+    white-space: normal;
+  }
+
+  .chips {
+    gap: 8px;
+    margin-top: 26px;
+  }
+
+  .chip {
+    font-size: 11.5px;
+    padding: 7px 10px;
+  }
+
+  .data-credit {
+    font-size: 11px;
+    line-height: 1.55;
+  }
+
+  .scroll-hint {
+    display: none;
+  }
+
+  /* Einleitung */
+  .intro .big {
+    font-size: clamp(24px, 6.6vw, 31px);
+  }
+
+  .intro-grid p {
+    font-size: 15.5px;
+  }
+
+  .triad div {
+    display: block;
+    padding: 14px 0;
+  }
+
+  .triad .k {
+    display: block;
+    min-width: 0;
+    margin-bottom: 3px;
+  }
+
+  .triad .v {
+    display: block;
+  }
+
+  /* Forschungskarten */
+  .grid-3,
+  .proj-grid {
+    gap: 14px;
+  }
+
+  .card {
+    padding: 23px 20px;
+  }
+
+  .card h3 {
+    font-size: 19px;
+  }
+
+  .proj .body {
+    padding: 19px 18px 22px;
+  }
+
+  .proj dl {
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
+
+  .proj dt {
+    white-space: normal;
+  }
+
+  .proj dd {
+    margin: 0 0 9px;
+    overflow-wrap: anywhere;
+  }
+
+  .tags {
+    gap: 8px;
+    margin-top: 28px;
+  }
+
+  .tag {
+    font-size: 12px;
+    padding: 7px 11px;
+  }
+
+  /* Mission */
+  .mission h2 {
+    font-size: clamp(30px, 8vw, 42px);
+    line-height: 1.13;
+  }
+
+  .creeds {
+    margin-top: 38px;
+  }
+
+  /* Service */
+  .svc {
+    padding: 23px 20px;
+  }
+
+  .svc h4 {
+    align-items: flex-start;
+    font-size: 16px;
+  }
+
+  /* Über uns */
+  .about-grid p {
+    font-size: 15.5px;
+  }
+
+  .facts {
+    gap: 10px;
+  }
+
+  .fact {
+    padding: 17px 14px;
+    min-width: 0;
+  }
+
+  .fact .big {
+    font-size: clamp(20px, 5.3vw, 27px);
+    overflow-wrap: anywhere;
+  }
+
+  .fact .lbl {
+    font-size: 12px;
+  }
+
+  /* Kontakt */
+  .contact-grid {
+    gap: 24px;
+  }
+
+  .form {
+    padding: 18px;
+    min-width: 0;
+  }
+
+  .form .btn {
+    max-width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: center;
+    justify-content: center;
+    font-size: clamp(11.5px, 3.5vw, 13.5px);
+  }
+
+  /* Footer */
+  .foot-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 27px;
+  }
+
+  footer {
+    padding: 50px 0 30px;
+  }
+
+  .foot-bottom {
+    margin-top: 35px;
+  }
+
+  footer a,
+  .impressum {
+    overflow-wrap: anywhere;
+  }
+}
+
+/* ---------- KLEINE SMARTPHONES ---------- */
+@media (max-width: 380px) {
+
+  .facts,
+  .partner-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hero h1 {
+    font-size: clamp(32px, 9vw, 36px);
+  }
+
+  .hero .wrap {
+    padding-top: 104px;
+  }
+}
+
+/* Touch-Geräte */
+@media (hover: none) {
+  .card:hover,
+  .proj:hover,
+  .btn-primary:hover {
+    transform: none;
+  }
+}
+
+/* Weniger Animationen bei entsprechender Einstellung */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .reveal {
+    transition: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .scroll-hint .rail::after {
+    animation: none;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -313,18 +736,37 @@
     <img class="mark" src="__LOGO_DATAURI__" alt="Science under Pressure Logo">
     <span>Science under Pressure<small>Unterwasser&shy;forschung · Verein</small></span>
   </a>
-  <nav class="links">
-    <a href="#forschung">Forschung</a>
-    <a href="#mission">Mission</a>
-    <a href="#service">Service</a>
-    <a href="#about">Über uns</a>
-  </nav>
-  <div class="nav-cta">
-    <a href="#mitmachen" class="btn btn-primary">Kontakt</a>
-  </div>
-  <button class="burger" id="burger" aria-label="Menü">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-  </button>
+ 
+<nav class="links" id="site-menu" aria-label="Hauptnavigation">
+  <a href="#forschung">Forschung</a>
+  <a href="#mission">Mission</a>
+  <a href="#service">Service</a>
+  <a href="#about">Über uns</a>
+  <a class="mobile-contact" href="#mitmachen">Kontakt</a>
+</nav>
+
+<div class="nav-cta">
+  <a href="#mitmachen" class="btn btn-primary">Kontakt</a>
+</div>
+
+<button
+  class="burger"
+  id="burger"
+  type="button"
+  aria-label="Menü öffnen"
+  aria-controls="site-menu"
+  aria-expanded="false"
+>
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <path
+      d="M4 7h16M4 12h16M4 17h16"
+      stroke="currentColor"
+      stroke-width="1.6"
+      stroke-linecap="round"
+    />
+  </svg>
+</button>
+
 </header>
 
 <main id="top">
@@ -562,22 +1004,28 @@ import * as THREE from 'three';
 const HEIGHTMAP = "__HEIGHTMAP_DATAURI__";
 const HM_W = __HM_W__, HM_H = __HM_H__;
 const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
-
+const mobileAtLoad = matchMedia('(max-width:760px)').matches;
+    
 const canvas = document.getElementById('bathy');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true, powerPreference:'high-performance' });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setPixelRatio(Math.min(devicePixelRatio, mobileAtLoad ? 1.35 : 2));
 renderer.setSize(innerWidth, innerHeight);
 
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x071019, 0.026);
 
 const camera = new THREE.PerspectiveCamera(42, innerWidth/innerHeight, 0.1, 200);
-const camBase = new THREE.Vector3(0, 4.0, 6.7);
+const camBase = new THREE.Vector3(
+  0,
+  mobileAtLoad ? 5.2 : 4.0,
+  mobileAtLoad ? 15.0 : 6.7
+);
 camera.position.copy(camBase);
 camera.lookAt(0, -0.2, 0);
 
 const group = new THREE.Group();
 scene.add(group);
+group.scale.setScalar(mobileAtLoad ? 0.58 : 1);
 
 const loader = new THREE.TextureLoader();
 const tex = loader.load(HEIGHTMAP);
@@ -588,7 +1036,12 @@ tex.generateMipmaps = false;
 
 const AR = HM_W / HM_H;                 // heightmap aspect (~5.28)
 const PW = 11.0, PH = PW / AR;          // plane world size
-const geo = new THREE.PlaneGeometry(PW, PH, Math.min(900, HM_W), Math.min(220, HM_H));
+const geo = new THREE.PlaneGeometry(
+  PW,
+  PH,
+  Math.min(mobileAtLoad ? 320 : 900, HM_W),
+  Math.min(mobileAtLoad ? 100 : 220, HM_H)
+);
 
 const uniforms = {
   uHeight:{ value: tex },
@@ -665,7 +1118,7 @@ group.rotation.y = 0.62;               // sweep the lake diagonally across the f
 group.rotation.x = 0.16;               // slight pitch
 
 // faint plankton particles
-const pc = 340;
+const pc = mobileAtLoad ? 140 : 340;
 const pg = new THREE.BufferGeometry();
 const parr = new Float32Array(pc*3);
 for(let i=0;i<pc;i++){ parr[i*3]=(Math.random()-0.5)*22; parr[i*3+1]=Math.random()*7-1; parr[i*3+2]=(Math.random()-0.5)*10; }
@@ -679,10 +1132,29 @@ let mx=0, my=0, tmx=0, tmy=0;
 addEventListener('pointermove', e=>{ tmx=(e.clientX/innerWidth-0.5); tmy=(e.clientY/innerHeight-0.5); }, {passive:true});
 let scrollP = 0;
 addEventListener('scroll', ()=>{ scrollP = Math.min(1, scrollY / innerHeight); }, {passive:true});
-addEventListener('resize', ()=>{
-  camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+function resizeScene() {
+
+  const mobile = innerWidth <= 760;
+
+  camBase.set(
+    0,
+    mobile ? 5.2 : 4.0,
+    mobile ? 15.0 : 6.7
+  );
+
+  group.scale.setScalar(mobile ? 0.58 : 1);
+
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+
+  renderer.setPixelRatio(
+    Math.min(devicePixelRatio, mobile ? 1.35 : 2)
+  );
+
   renderer.setSize(innerWidth, innerHeight);
-});
+}
+
+addEventListener('resize', resizeScene, { passive: true });
 
 const clock = new THREE.Clock();
 let revealT = 0;
@@ -690,7 +1162,7 @@ let revealT = 0;
 // Cap the framerate so continuous rendering stays gentle on battery
 // (a harder cap when the user prefers reduced motion).
 let lastFrame = -1;
-const MIN_DT = 1/(reduce ? 15 : 30);
+const MIN_DT = 1 / (reduce ? 15 : mobileAtLoad ? 24 : 30);
 const BG_FLOOR = 0.18;            // lake never fully disappears anymore
 function animate(){
   requestAnimationFrame(animate);
@@ -745,11 +1217,86 @@ animate();
     glab.innerHTML = Math.round(p*MAXDEPTH)+' m';
   }, {passive:true});
 
-  // mobile menu (simple anchor scroll: reveal hidden links)
-  document.getElementById('burger')?.addEventListener('click', ()=>{
-    document.querySelector('nav.links')?.scrollIntoView();
-    location.hash = '#forschung';
+
+// ========== MOBILE NAVIGATION ==========
+
+const menuButton = document.getElementById('burger');
+const mobileMenu = document.getElementById('site-menu');
+
+const mobileBreakpoint = matchMedia('(max-width: 940px)');
+
+function setMobileMenu(open) {
+
+  if (!menuButton || !mobileMenu) return;
+
+  const active = open && mobileBreakpoint.matches;
+
+  mobileMenu.classList.toggle('is-open', active);
+
+  menuButton.setAttribute(
+    'aria-expanded',
+    String(active)
+  );
+
+  menuButton.setAttribute(
+    'aria-label',
+    active ? 'Menü schließen' : 'Menü öffnen'
+  );
+
+  document.body.classList.toggle('menu-open', active);
+}
+
+// Öffnen und Schließen
+menuButton?.addEventListener('click', () => {
+
+  const isOpen =
+    menuButton.getAttribute('aria-expanded') === 'true';
+
+  setMobileMenu(!isOpen);
+});
+
+// Beim Anklicken eines Menüpunkts schließen
+mobileMenu?.querySelectorAll('a').forEach(link => {
+
+  link.addEventListener('click', () => {
+    setMobileMenu(false);
   });
+
+});
+
+// Mit Escape schließen
+document.addEventListener('keydown', (event) => {
+
+  if (event.key === 'Escape' &&
+      menuButton?.getAttribute('aria-expanded') === 'true') {
+
+    setMobileMenu(false);
+    menuButton.focus();
+
+  }
+
+});
+
+// Beim Klicken außerhalb schließen
+document.addEventListener('click', (event) => {
+
+  if (menuButton?.getAttribute('aria-expanded') !== 'true') {
+    return;
+  }
+
+  if (!mobileMenu?.contains(event.target) &&
+      !menuButton?.contains(event.target)) {
+
+    setMobileMenu(false);
+
+  }
+});
+
+// Beim Wechsel auf Desktop schließen
+mobileBreakpoint.addEventListener('change', () => {
+  setMobileMenu(false);
+});
+
 </script>
 
 </body>
