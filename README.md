@@ -19,6 +19,7 @@ Rennstrecke zeigt der Hero ein **echtes bathymetrisches 3D-Relief** eines Schwei
 | **Intro** | „Gewässer sind Archive, Lebensräume und Frühwarnsysteme zugleich" + Triade. |
 | **Forschung** | 3 Karten: Unterwasserarchäologie · Marine Biologie & Ökologie · Ozeanographie & Gewässerkunde. Methoden-Tags. |
 | **Mission** | Slogan + 3 Kerngedanken (Dokumentieren · Verstehen · Zugänglich machen). |
+| **News** | Meldungen zu Gesprächen, Kooperationen und Entwicklungen des Vereins, als Karten mit Datum, Titel und Text. |
 | **Service** | 6 Leistungen (Bathymetrie, Monitoring, Gutachten, Fotogrammetrie, Datenanalyse, Wissenschaftskommunikation). |
 | **Über uns** | Verein, Gemeinnützigkeit, Neutralität, wissenschaftlicher Anspruch. |
 | **Mitmachen / Kontakt** | Zielgruppen und `mailto:`-Link auf `info@science-under-pressure.org`. |
@@ -91,6 +92,25 @@ python build.py
 `build.py` liest `assets/walensee_heightmap.png`, `logo.jpeg` und `_template.html` und
 schreibt `index.html`. Die rohen swisstopo-Downloads werden dafür nicht gebraucht.
 
+## News-Eintrag hinzufügen
+
+Die News stehen in `_template.html` in der Sektion `id="news"`. Pro Meldung gibt es eine Karte:
+
+```html
+<div class="svc reveal" style="border-right:0">
+  <div class="eyebrow">Monat Jahr</div>
+  <h4>Titel der Meldung</h4>
+  <p>Text der Meldung.</p>
+</div>
+```
+
+1. Karte in `_template.html` einfügen. Bei zwei oder mehr Karten das Inline-Style
+   `style="grid-template-columns:1fr"` am `svc-grid` und `style="border-right:0"` an den Karten entfernen,
+   dann stehen sie in zwei Spalten.
+2. Für Datum, Titel und Text in `language-switcher.js` im Wörterbuch `en` je einen Eintrag ergänzen.
+   Der deutsche Schlüssel muss **exakt** dem Text im HTML entsprechen, sonst bleibt die Stelle auf Deutsch.
+3. `python build.py` ausführen, im Browser prüfen (DE und EN), committen.
+
 ## Ansehen
 
 `index.html` im Browser öffnen (Internet nötig — Three.js kommt vom CDN) oder lokal servieren:
@@ -117,3 +137,8 @@ python -m http.server 8777
 - Barrierefreiheit: Reduced-Motion wird respektiert; Farbkontraste noch prüfen.
 - Optional: anderes Gewässer im Hero (jeder swissBATHY3D-See lässt sich via
   `scripts/process_bathy.py` einsetzen), oder Framework-Umzug (Astro / Vite), falls die Site mehrseitig wird.
+- News mit Medien: Bilder und Videos in den News-Karten sind noch nicht umgesetzt. Geplant:
+  Bilder als verkleinerte JPG/WebP-Dateien in `assets/news/` (ca. 1600 px, unter 300 KB, ohne EXIF-Daten),
+  längere Videos per YouTube/Vimeo-Einbettung (`youtube-nocookie.com`), kurze Clips (bis ca. 20 MB) als MP4.
+  `alt`-Texte und `title`-Attribute werden vom Sprachschalter derzeit nicht übersetzt (nur Textknoten).
+  Vor Veröffentlichung: Bildrechte und Einverständnis abgebildeter Personen klären.  

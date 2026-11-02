@@ -168,6 +168,7 @@
     content:"";position:absolute;inset:0;border-radius:var(--r);padding:1px;
     background:linear-gradient(180deg,rgba(69,224,216,.35),transparent 40%);
     -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
     -webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:.35s;
   }
   .card:hover{transform:translateY(-4px);border-color:var(--line-strong)}
@@ -740,6 +741,7 @@ nav.links a:focus-visible,
 <nav class="links" id="site-menu" aria-label="Hauptnavigation">
   <a href="#forschung">Forschung</a>
   <a href="#mission">Mission</a>
+  <a href="#news">News</a>
   <a href="#service">Service</a>
   <a href="#about">Über uns</a>
   <a class="mobile-contact" href="#mitmachen">Kontakt</a>
@@ -882,6 +884,24 @@ nav.links a:focus-visible,
   </div>
 </section>
 
+<!-- ================= NEWS ================= -->
+<section class="band section-pad" id="news">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">News</div>
+      <h2>Aktuelles aus dem Verein.</h2>
+      <p class="lead">Neuigkeiten, Gespräche und Entwicklungen rund um Science under Pressure.</p>
+    </div>
+    <div class="svc-grid" style="grid-template-columns:1fr">
+      <div class="svc reveal" style="border-right:0">
+        <div class="eyebrow">November 2026</div>
+        <h4>Austausch mit dem Fraunhofer-Institut</h4>
+        <p>Wir durften mit Jan Solle vom Fraunhofer-Institut über mögliche gemeinsame Ansätze sprechen. Vielen Dank für den interessanten Austausch und wir freuen uns auf mögliche zukünftige Kooperationen.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ================= SERVICE ================= -->
 <section class="band section-pad" id="service">
   <div class="wrap">
@@ -977,6 +997,7 @@ nav.links a:focus-visible,
         <h5>Verein</h5>
         <a href="#about">Über uns</a>
         <a href="#mission">Mission</a>
+        <a href="#news">News</a>
         <a href="#service">Service</a>
       </div>
       <div>
