@@ -107,7 +107,13 @@
     "Spenden": "Donate",
     "Datenquelle: swissBATHY3D": "Data Source: swissBATHY3D",
     "Science under Pressure · Verein für wissenschaftliche Unterwasserforschung": "Science under Pressure · Association for Scientific Underwater Research",
-    "3D-Relief: Walensee · swissBATHY3D © swisstopo · CC-konform": "3D Terrain: Lake Walen · swissBATHY3D © swisstopo · CC-compliant"
+    "3D-Relief: Walensee · swissBATHY3D © swisstopo · CC-konform": "3D Terrain: Lake Walen · swissBATHY3D © swisstopo · CC-compliant",
+    "News": "News",
+    "Aktuelles aus dem Verein.": "Latest from the association.",
+    "Neuigkeiten, Gespräche und Entwicklungen rund um Science under Pressure.": "News, conversations and developments around Science under Pressure.",
+    "Austausch mit dem Fraunhofer-Institut": "Exchange with the Fraunhofer Institute",
+    "November 2026": "November 2026",
+    "Wir durften mit Jan Solle vom Fraunhofer-Institut über mögliche gemeinsame Ansätze sprechen. Vielen Dank für den interessanten Austausch und wir freuen uns auf mögliche zukünftige Kooperationen.": "We had the opportunity to speak with Jan Solle from the Fraunhofer Institute about possible joint approaches. Thank you for the interesting exchange, and we look forward to possible future collaboration."
   };
 
   // Leerzeichen und Zeilenumbrüche vereinheitlichen
